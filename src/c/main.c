@@ -1,12 +1,20 @@
+//Speaker Guide https://developer.repebble.com/guides/events-and-services/speaker/
+//Speaker Document https://developer.repebble.com/docs/c/User_Interface/Speaker/
+//Touch Guide https://developer.repebble.com/guides/events-and-services/touch/
+//Touch Document https://developer.repebble.com/docs/c/Foundation/Event_Service/TouchService/
+
 #include <pebble.h>
 static Window *s_main_window;
 static Layer *s_canvas_layer;
 static TextLayer *s_status_layer;
+static TextLayer *s_octave_layer;
 
 static BitmapLayer *s_wave_layer;
 static GBitmap *s_wave_bitmap[4];
 
 static SpeakerWaveform speakerWaveform;
+
+static char octave_buffer[] = " 1";
 
 typedef struct {
     int16_t  x;
@@ -28,6 +36,7 @@ static const SpeakerWaveform SpeakerWaveformList[5] = {
    SpeakerWaveformSawtooth,
 };
 int16_t speakerWaveIndex = 1;
+int16_t octave = 1;
 
 // Vibe pattern: ON for 200ms, OFF for 100ms, ON for 400ms:
 static const uint32_t segments[] = { 50 };
@@ -43,10 +52,11 @@ static void music(int16_t midi_note){
   if(speakerWaveIndex == 0 || speakerWaveIndex == 2){
     duration_ms = duration_ms * 2;
   }
+  int16_t ajusted_midi_note = midi_note + octave * 12;
   //Use speaker_play_notes instead of speaker_play_tone to avoid noise.
   //speaker_play_tone(frequency_hz, duration_ms, 80, speakerWaveform);
    SpeakerNote speakerNote[] = {
-      { .midi_note = midi_note , .waveform = speakerWaveform,     .duration_ms = duration_ms },
+      { .midi_note = ajusted_midi_note , .waveform = speakerWaveform,     .duration_ms = duration_ms },
       { .midi_note = 0 , .waveform = speakerWaveform,     .duration_ms = 50 }
    };
    speaker_play_notes(speakerNote, ARRAY_LENGTH(speakerNote), 80);
@@ -116,15 +126,29 @@ static void main_window_load(Window *window) {
    text_layer_set_text_color(s_status_layer, GColorWhite);
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_status_layer));
 
-  s_wave_layer = bitmap_layer_create(GRect(50, 190, 100, 20));
+   s_octave_layer = text_layer_create(GRect(160, 180 ,20 , 40));
+   text_layer_set_background_color(s_octave_layer, GColorClear);
+   text_layer_set_text_color(s_octave_layer, GColorGreen);
+   text_layer_set_font(s_octave_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD ));
+   text_layer_set_text_alignment(s_octave_layer, GTextAlignmentCenter);
+  
+   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_octave_layer));
+  
+  
+  s_wave_layer = bitmap_layer_create(GRect(40, 190, 100, 20));
   bitmap_layer_set_bitmap(s_wave_layer, s_wave_bitmap[speakerWaveIndex]);
   layer_add_child(window_get_root_layer(window), bitmap_layer_get_layer(s_wave_layer));
+  
+  snprintf(octave_buffer, sizeof(octave_buffer), "%d", octave);
+  text_layer_set_text(s_octave_layer, octave_buffer);
+
 }
 
 static void main_window_unload(Window *window) {
   speaker_stop();
   layer_destroy(s_canvas_layer);
   text_layer_destroy(s_status_layer);
+  text_layer_destroy(s_octave_layer);
   touch_service_unsubscribe();
   gbitmap_destroy(s_wave_bitmap[0]);
   gbitmap_destroy(s_wave_bitmap[1]);
@@ -138,16 +162,23 @@ static void deinit() {
   window_destroy(s_main_window);
 }
 
-static void click_up_handler(ClickRecognizerRef recognizer, void *context) {
-  speakerWaveIndex = speakerWaveIndex - 1;
-  if(speakerWaveIndex < 0){
-    speakerWaveIndex = 3;
-  }
-  speakerWaveform = SpeakerWaveformList[speakerWaveIndex];
-  bitmap_layer_set_bitmap(s_wave_layer, s_wave_bitmap[speakerWaveIndex]);
-  layer_mark_dirty(bitmap_layer_get_layer(s_wave_layer));
-}
 static void click_down_handler(ClickRecognizerRef recognizer, void *context) {
+  octave = octave - 1;
+  if(octave < -2){
+    octave = -2;
+  }
+  snprintf(octave_buffer, sizeof(octave_buffer), "%d", octave);
+  text_layer_set_text(s_octave_layer, octave_buffer);
+}
+static void click_up_handler(ClickRecognizerRef recognizer, void *context) {
+  octave = octave + 1;
+  if(octave > 2){
+    octave = 2;
+  }
+  snprintf(octave_buffer, sizeof(octave_buffer), "%d", octave);
+  text_layer_set_text(s_octave_layer, octave_buffer);
+}
+static void click_select_handler(ClickRecognizerRef recognizer, void *context) {
   speakerWaveIndex = speakerWaveIndex + 1;
   if(speakerWaveIndex > 3){
     speakerWaveIndex = 0;
@@ -159,6 +190,7 @@ static void click_down_handler(ClickRecognizerRef recognizer, void *context) {
 
 static void click_config_provider(void *context) {
   window_single_click_subscribe(BUTTON_ID_UP, click_up_handler);
+  window_single_click_subscribe(BUTTON_ID_SELECT, click_select_handler);
   window_single_click_subscribe(BUTTON_ID_DOWN, click_down_handler);
 }
 
