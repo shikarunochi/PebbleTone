@@ -12,13 +12,13 @@ typedef struct {
     int16_t  x;
     int16_t  y;
     GColor8 color;
-    int16_t frequency_hz;
+    int16_t midi_note;
 } NoteInfo;
 
 static const NoteInfo posList[8] = {
-  {50,50,GColorRed,262},{100,50,GColorOrange,294},{150,50,GColorYellow,330},
-  {70,100,GColorGreen,350},{130,100,GColorVeryLightBlue,392},
-  {50,150,GColorBlue,440},{100,150,GColorPurple,494},{150,150,GColorRed,523}
+  {50,50,GColorRed,60},{100,50,GColorOrange,62},{150,50,GColorYellow,64},
+  {70,100,GColorGreen,65},{130,100,GColorVeryLightBlue,67},
+  {50,150,GColorBlue,69},{100,150,GColorPurple,71},{150,150,GColorRed,72}
 };
 
 static const SpeakerWaveform SpeakerWaveformList[5] = {
@@ -37,13 +37,20 @@ VibePattern pat = {
 };
 
 
-static void music(int16_t frequency_hz){
+static void music(int16_t midi_note){
   //speaker_stop();
   int16_t duration_ms = 200;
   if(speakerWaveIndex == 0 || speakerWaveIndex == 2){
     duration_ms = duration_ms * 2;
   }
-  speaker_play_tone(frequency_hz, duration_ms, 80, speakerWaveform);
+  //Use speaker_play_notes instead of speaker_play_tone to avoid noise.
+  //speaker_play_tone(frequency_hz, duration_ms, 80, speakerWaveform);
+   SpeakerNote speakerNote[] = {
+      { .midi_note = midi_note , .waveform = speakerWaveform,     .duration_ms = duration_ms },
+      { .midi_note = 0 , .waveform = speakerWaveform,     .duration_ms = 50 }
+   };
+   speaker_play_notes(speakerNote, ARRAY_LENGTH(speakerNote), 80);
+  
 }
 
 static void canvas_update_proc(Layer *layer, GContext *ctx) {
@@ -69,7 +76,7 @@ static void touch_handler(const TouchEvent *event, void *context) {
           //             "Touch !");
           //vibes_short_pulse();
           vibes_enqueue_custom_pattern(pat);
-          music(posList[i].frequency_hz);
+          music(posList[i].midi_note);
           break;
         } 
       }
