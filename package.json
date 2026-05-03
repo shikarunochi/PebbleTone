@@ -1,0 +1,68 @@
+{
+    "author": "Shikarunochi",
+    "dependencies": {},
+    "keywords": [
+        "pebble-app"
+    ],
+    "name": "pebble-tone",
+    "pebble": {
+        "displayName": "PEBBLE-TONE",
+        "enableMultiJS": true,
+        "messageKeys": [],
+        "projectType": "native",
+        "resources": {
+            "media": [
+                {
+                    "file": "images/pebbleTone.png",
+                    "menuIcon": true,
+                    "name": "PEBBLE_TONE_ICON",
+                    "targetPlatforms": [
+                        "emery"
+                    ],
+                    "type": "png"
+                },
+                {
+                    "file": "images/wave_sawtooth.png",
+                    "name": "WAVE_SAWTOOTH",
+                    "targetPlatforms": [
+                        "emery"
+                    ],
+                    "type": "png"
+                },
+                {
+                    "file": "images/wave_sine.png",
+                    "name": "WAVE_SINE",
+                    "targetPlatforms": [
+                        "emery"
+                    ],
+                    "type": "png"
+                },
+                {
+                    "file": "images/wave_square.png",
+                    "name": "WAVE_SQUARE",
+                    "targetPlatforms": [
+                        "emery"
+                    ],
+                    "type": "png"
+                },
+                {
+                    "file": "images/wave_triangle.png",
+                    "name": "WAVE_TRIANGLE",
+                    "targetPlatforms": [
+                        "emery"
+                    ],
+                    "type": "png"
+                }
+            ]
+        },
+        "sdkVersion": "3",
+        "targetPlatforms": [
+            "emery"
+        ],
+        "uuid": "48cfb590-3e79-4c1f-8dc2-e1a48dd48cb3",
+        "watchapp": {
+            "watchface": false
+        }
+    },
+    "version": "1.1.0"
+}
