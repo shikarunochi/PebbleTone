@@ -39,11 +39,11 @@ VibePattern pat = {
 
 static void music(int16_t frequency_hz){
   //speaker_stop();
-  int16_t duration_ms = 80;
+  int16_t duration_ms = 200;
   if(speakerWaveIndex == 0 || speakerWaveIndex == 2){
-    duration_ms = duration_ms * 3;
+    duration_ms = duration_ms * 2;
   }
-  speaker_play_tone(frequency_hz, 200, duration_ms, speakerWaveform);
+  speaker_play_tone(frequency_hz, duration_ms, 80, speakerWaveform);
 }
 
 static void canvas_update_proc(Layer *layer, GContext *ctx) {
