@@ -39,9 +39,12 @@ VibePattern pat = {
 
 static void music(int16_t frequency_hz){
   //speaker_stop();
-  speaker_play_tone(frequency_hz, 200, 80, speakerWaveform);
+  int16_t duration_ms = 80;
+  if(speakerWaveIndex == 0 || speakerWaveIndex == 2){
+    duration_ms = duration_ms * 3;
+  }
+  speaker_play_tone(frequency_hz, 200, duration_ms, speakerWaveform);
 }
-
 
 static void canvas_update_proc(Layer *layer, GContext *ctx) {
   // Custom drawing happens here!
@@ -112,6 +115,7 @@ static void main_window_load(Window *window) {
 }
 
 static void main_window_unload(Window *window) {
+  speaker_stop();
   layer_destroy(s_canvas_layer);
   text_layer_destroy(s_status_layer);
   touch_service_unsubscribe();
