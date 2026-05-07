@@ -52,11 +52,11 @@ static void music(int16_t midi_note){
   if(speakerWaveIndex == 0 || speakerWaveIndex == 2){
     duration_ms = duration_ms * 2;
   }
-  int16_t ajusted_midi_note = midi_note + octave * 12;
+  int16_t adjusted_midi_note = midi_note + octave * 12;
   //Use speaker_play_notes instead of speaker_play_tone to avoid noise.
   //speaker_play_tone(frequency_hz, duration_ms, 80, speakerWaveform);
    SpeakerNote speakerNote[] = {
-      { .midi_note = ajusted_midi_note , .waveform = speakerWaveform,     .duration_ms = duration_ms },
+      { .midi_note = adjusted_midi_note , .waveform = speakerWaveform,     .duration_ms = duration_ms },
       { .midi_note = 0 , .waveform = speakerWaveform,     .duration_ms = 50 }
    };
    speaker_play_notes(speakerNote, ARRAY_LENGTH(speakerNote), 80);
